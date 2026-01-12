@@ -32,11 +32,10 @@ public class ConfiguracaoSeguranca {
 						// Rotas Públicas (Login e Registro)
 						.requestMatchers(HttpMethod.POST,"/auth/registro").permitAll()
 						.requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
-						.requestMatchers(HttpMethod.GET,"/tarefas").permitAll()
 						.requestMatchers("/h2-console/**").permitAll()
 						
 						// Rotas de Admin
-						.requestMatchers(HttpMethod.POST,"/tarefas").hasRole("ADMIN")// Exemplo: Só admin cria tarefas (por enquanto)
+						.requestMatchers(HttpMethod.POST,"/auth/registro/admin").hasRole("ADMIN")
 						
 						// Qualquer outra rota precisa estar autenticada
 						.anyRequest().authenticated()

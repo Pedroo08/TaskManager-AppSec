@@ -63,7 +63,20 @@ public class AutenticacaoController {
             return ResponseEntity.badRequest().body("Login já existe.");
         }
         String senhaCriptografada = passwordEncoder.encode(dados.senha());
-        Papel papel = (dados.papel() == Papel.ADMIN) ? Papel.ADMIN : Papel.USER;
+        Papel papel = Papel.USER;
+        Usuario novoUsuario = new Usuario(dados.login(), senhaCriptografada, papel);
+        usuarioRepository.save(novoUsuario);
+        return ResponseEntity.ok("Usuário registrado com sucesso!");
+    }
+    
+    
+    @PostMapping("/registro/admin")
+    public ResponseEntity registrarAdmin(@RequestBody DadosRegistroDTO dados) {
+        if (usuarioRepository.findByLogin(dados.login()) != null) {
+            return ResponseEntity.badRequest().body("Login já existe.");
+        }
+        String senhaCriptografada = passwordEncoder.encode(dados.senha());
+        Papel papel = Papel.ADMIN;
         Usuario novoUsuario = new Usuario(dados.login(), senhaCriptografada, papel);
         usuarioRepository.save(novoUsuario);
         return ResponseEntity.ok("Usuário registrado com sucesso!");

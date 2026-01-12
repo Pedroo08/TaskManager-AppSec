@@ -74,7 +74,6 @@ public class Usuario implements UserDetails{ // <--- O SEGREDO ESTÁ AQUI
     @Override
     public boolean isEnabled() { return true; }
 
-
 	public Usuario(String login, String senhaCriptografada, Papel papel) {
 		this.login = login;
 		this.senha = senhaCriptografada;
