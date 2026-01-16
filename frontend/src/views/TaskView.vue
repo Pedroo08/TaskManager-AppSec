@@ -1,34 +1,44 @@
 <script setup lang="ts">
-    import {ref} from 'vue';
     import TaskCard from '@/components/TaskCard.vue';  
+    import { useTaskStore } from '@/stores/taskStore';
+    import TaskModal from '@/components/TaskModal.vue';
+    import TaskModalEdit from '@/components/TaskModalEdit.vue';
+    import { ref } from 'vue';
+    import type { Task } from '@/types/Task'; // Importando o tipo
+    
+    const taskStore = useTaskStore();
+    const isModalOpen = ref(false);
+    const isModalEditOpen = ref(false);
+    const taskForEdit = ref<Task | null>(null);// Armazena a tarefa que clicamos
 
-    const tasks =ref([
+    const handleAddTask = (data: { title: string, description: string }) => {
+        taskStore.addTask(data.title, data.description);
+        isModalOpen.value = false; // Fecha o modal após salvar
+    };
 
-        { 
-            id: 1, 
-            title: 'Configurar Ambiente', 
-            description: 'Instalar Vue, Tailwind e configurar PostCSS.', 
-            status: 'completed' 
-        },
-        { 
-            id: 2, 
-            title: 'Implementar Auth', 
-            description: 'Criar fluxo de login com proteção contra Session Fixation.', 
-            status: 'pending' 
-        },
-        { 
-            id: 3, 
-            title: 'Sanitização de Inputs', 
-            description: 'Garantir que nenhum dado de usuário cause XSS no TaskCard.', 
-            status: 'pending' 
-        }
-    ]);
+    const handleDelete = (id:number) => {
+        taskStore.deleteTask(id)
+    }
 
-    const handleCriarTarefa  = () =>{
-
-        console.log("tarefa criada")
+    const OpenModalEdit = (task:Task) =>{
+        taskForEdit.value = task;
+        isModalEditOpen.value = true
 
     }
+
+    const handleComplete = (task:Task) =>{
+        taskForEdit.value = task;
+        taskStore.completeTask(task.id)
+
+    }
+
+    const handleEditSave = (data:{ id:number, title: string, description: string , status: Task['status']}) => {
+        taskStore.editTask(data.id, data.title,data.description,data.status);
+        isModalEditOpen.value = false //fecha
+    }
+
+
+
 </script>
 
 <template >
@@ -38,13 +48,26 @@
                 <h1 class="text-3xl font-bold text-white">Minhas Tarefas</h1>
                 <p class="text-slate-400">Gerencie suas atividades com segurança</p>
             </div>
-            <button @click="handleCriarTarefa" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold trasition-all">
+            <button @click="isModalOpen = true" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold trasition-all">
               + Nova Tarefa  
             </button>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <TaskCard v-for="item in tasks" :key="item.id" :task="item" />
+            <TaskCard v-for="item in taskStore.tasks" :key="item.id" :task="item" @excluir="handleDelete" @editar="OpenModalEdit"  @complete="handleComplete"/>
         </div>
+
+        <TaskModal 
+            :isOpen="isModalOpen" 
+            @close="isModalOpen = false" 
+            @save="handleAddTask"
+         />
+         <TaskModalEdit
+            :isOpen="isModalEditOpen" 
+            :task="taskForEdit"
+            @close="isModalEditOpen = false" 
+            @edit="handleEditSave"
+        />
+
     </main>
 </template>
